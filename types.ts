@@ -2,6 +2,7 @@ export interface TelegramBot {
   id: string;
   token: string;
   name: string;
+  username?: string;
   description: string;
   chatId?: string; // The chat ID for the owner/admin
   createdAt: number;

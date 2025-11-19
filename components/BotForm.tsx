@@ -13,6 +13,7 @@ interface BotFormProps {
 
 const BotForm: React.FC<BotFormProps> = ({ bot, onSave, onDelete, onCancel }) => {
   const [name, setName] = useState(bot?.name || '');
+  const [username, setUsername] = useState(bot?.username || '');
   const [token, setToken] = useState(bot?.token || '');
   const [chatId, setChatId] = useState(bot?.chatId || '');
   
@@ -21,6 +22,7 @@ const BotForm: React.FC<BotFormProps> = ({ bot, onSave, onDelete, onCancel }) =>
   useEffect(() => {
     if (bot) {
       setName(bot.name);
+      setUsername(bot.username || '');
       setToken(bot.token);
       setChatId(bot.chatId || '');
     }
@@ -30,7 +32,10 @@ const BotForm: React.FC<BotFormProps> = ({ bot, onSave, onDelete, onCancel }) =>
   useEffect(() => {
     const fetchBotName = async () => {
       if (!token || token.length < 20) {
-         if (!bot) setName('');
+         if (!bot) {
+             setName('');
+             setUsername('');
+         }
          return;
       }
 
@@ -42,8 +47,12 @@ const BotForm: React.FC<BotFormProps> = ({ bot, onSave, onDelete, onCancel }) =>
         if (info.first_name) {
           setName(info.first_name);
         }
+        if (info.username) {
+          setUsername(info.username);
+        }
       } catch (e) {
         setName('');
+        setUsername('');
       } finally {
         setIsLoadingInfo(false);
       }
@@ -63,6 +72,7 @@ const BotForm: React.FC<BotFormProps> = ({ bot, onSave, onDelete, onCancel }) =>
     const newBot: TelegramBot = {
       id: bot?.id || crypto.randomUUID(),
       name,
+      username,
       token,
       description: '', 
       chatId: chatId || undefined,
@@ -121,9 +131,14 @@ const BotForm: React.FC<BotFormProps> = ({ bot, onSave, onDelete, onCancel }) =>
           
           <div className="mt-2 min-h-[20px]">
              {name ? (
-               <div className="text-sm flex items-center gap-2 text-green-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                  Имя бота: <span className="font-bold text-slate-200">{name}</span>
+               <div className="text-sm flex flex-col gap-1">
+                 <div className="flex items-center gap-2 text-green-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    Имя бота: <span className="font-bold text-slate-200">{name}</span>
+                 </div>
+                 {username && (
+                     <div className="text-slate-500 text-xs ml-3.5">@{username}</div>
+                 )}
                </div>
              ) : (token.length > 20 && !isLoadingInfo) ? (
                <div className="text-sm text-red-400">
@@ -160,7 +175,7 @@ const BotForm: React.FC<BotFormProps> = ({ bot, onSave, onDelete, onCancel }) =>
           {/* Only show scanner if we have a valid token/name AND no chatId yet (or we want to update it) */}
           {token && name && !chatId && (
              <ChatIdFinder 
-                bot={{ id: bot?.id || '', name, token, description: '', createdAt: 0 }} 
+                bot={{ id: bot?.id || '', name, username, token, description: '', createdAt: 0 }} 
                 onChatFound={(id) => setChatId(id)} 
              />
           )}

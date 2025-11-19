@@ -179,7 +179,10 @@ const App: React.FC = () => {
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex-1 mr-4">
-                                <h1 className="text-3xl font-bold text-white mb-3">{selectedBot.name}</h1>
+                                <h1 className="text-3xl font-bold text-white mb-1">{selectedBot.name}</h1>
+                                {selectedBot.username && (
+                                    <p className="text-blue-400 text-sm mb-3">@{selectedBot.username}</p>
+                                )}
                                 
                                 <div className="space-y-2">
                                   {/* Token Display */}
@@ -299,7 +302,7 @@ const App: React.FC = () => {
                         </h3>
                         <div className="space-y-2">
                              <a 
-                                href={`https://t.me/${selectedBot.name.replace(' ', '')}`} 
+                                href={`https://t.me/${selectedBot.username || selectedBot.name.replace(/\s+/g, '')}`} 
                                 target="_blank" 
                                 rel="noreferrer"
                                 className="block w-full py-2 px-4 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors text-center"
