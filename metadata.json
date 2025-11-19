@@ -1,0 +1,5 @@
+{
+  "name": "TeleBot Manager",
+  "description": "Удобная панель управления для Telegram ботов. Добавление, настройка, поиск Chat ID и генерация описаний с помощью AI.",
+  "requestFramePermissions": []
+}
