@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TelegramBot } from './types';
 import BotForm from './components/BotForm';
-import { Plus, Bot, Menu, X, Settings, MessageSquare, Github, AlertTriangle, Copy, Check } from 'lucide-react';
+import { Plus, Bot, Menu, X, Settings, MessageSquare, Github, AlertTriangle, Copy, Check, ExternalLink } from 'lucide-react';
+import { getBotMe } from './services/telegramService';
 
 const STORAGE_KEY = 'telebot_manager_data';
 
@@ -37,6 +38,32 @@ const App: React.FC = () => {
   useEffect(() => {
     setCopiedField(null);
   }, [selectedBotId]);
+
+  // Auto-fetch username for legacy bots that might be missing it
+  useEffect(() => {
+    const fetchMissingUsername = async () => {
+      if (!selectedBotId) return;
+      
+      const bot = bots.find(b => b.id === selectedBotId);
+      if (bot && !bot.username && bot.token) {
+        console.log("Attempting to fetch missing username for", bot.name);
+        try {
+          const info = await getBotMe(bot.token);
+          if (info.username) {
+            setBots(prevBots => prevBots.map(b => 
+              b.id === bot.id ? { ...b, username: info.username } : b
+            ));
+          }
+        } catch (e) {
+          console.error("Failed to auto-fetch username", e);
+        }
+      }
+    };
+
+    if (hasLoaded) {
+      fetchMissingUsername();
+    }
+  }, [selectedBotId, hasLoaded, bots]);
 
   const handleSaveBot = (bot: TelegramBot) => {
     if (selectedBotId && bots.find(b => b.id === bot.id)) {
@@ -301,14 +328,21 @@ const App: React.FC = () => {
                             Полезные ссылки
                         </h3>
                         <div className="space-y-2">
-                             <a 
-                                href={`https://t.me/${selectedBot.username}`} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="block w-full py-2 px-4 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors text-center"
-                             >
-                                Открыть в Telegram
-                             </a>
+                            {selectedBot.username ? (
+                                <a 
+                                    href={`https://t.me/${selectedBot.username}`} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="block w-full py-2 px-4 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors text-center flex items-center justify-center gap-2"
+                                >
+                                    <ExternalLink size={14} />
+                                    Открыть в Telegram
+                                </a>
+                            ) : (
+                                <div className="block w-full py-2 px-4 bg-slate-800 text-slate-600 border border-slate-700 rounded-lg text-sm text-center cursor-not-allowed">
+                                    Ссылка недоступна (нет username)
+                                </div>
+                            )}
                              <a 
                                 href="https://core.telegram.org/bots/api" 
                                 target="_blank" 
