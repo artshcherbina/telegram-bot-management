@@ -302,7 +302,7 @@ const App: React.FC = () => {
                         </h3>
                         <div className="space-y-2">
                              <a 
-                                href={`https://t.me/${selectedBot.username || selectedBot.name.replace(/\s+/g, '')}`} 
+                                href={`https://t.me/${selectedBot.username}`} 
                                 target="_blank" 
                                 rel="noreferrer"
                                 className="block w-full py-2 px-4 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors text-center"
